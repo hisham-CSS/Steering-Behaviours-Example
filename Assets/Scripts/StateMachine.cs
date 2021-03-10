@@ -15,6 +15,8 @@ public class StateMachine : MonoBehaviour
 
     public Seek seekScript;
     public Flee fleeScript;
+    public Cohesion cohesionScript;
+    public Seperation seperationScript;
 
     public float maxSpeed;
 
@@ -27,8 +29,14 @@ public class StateMachine : MonoBehaviour
     void Start()
     {
         agentScript = gameObject.AddComponent<Agent>();
+        agentScript.maxSpeed = maxSpeed;
 
-        
+        cohesionScript = gameObject.AddComponent<Cohesion>();
+        seperationScript = gameObject.AddComponent<Seperation>();
+        cohesionScript.targets = target.GetComponent<SquadLeader>().children;
+        seperationScript.targets = cohesionScript.targets;
+
+        ChangeState(UnitStates.Seek);
     }
 
     private void Update()
@@ -69,6 +77,9 @@ public class StateMachine : MonoBehaviour
                 DestroyImmediate(seekScript);
                 break;
             case UnitStates.Seek:
+                cohesionScript.weight = 0.7f;
+                seperationScript.weight = 50.0f;
+
                 seekScript = gameObject.AddComponent<Seek>();
                 seekScript.target = target;
                 seekScript.enabled = true;
